@@ -1,9 +1,752 @@
-﻿<!DOCTYPE html>
-<html lang='ar' dir='rtl'>
-<head><meta charset='UTF-8'><title>لعبة كتابة الكلمات</title></head>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة كتابة الكلمات للأطفال</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #4a148c;
+            margin: 15px 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            color: #6a1b9a;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .category-btn {
+            background: linear-gradient(to bottom, #7c43bd, #4a148c);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+        }
+        
+        .category-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .category-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .game-card {
+            display: none;
+            padding: 20px;
+        }
+        
+        .image-container {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 5px solid #7c43bd;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            background: #f3e5f5;
+        }
+        
+        .word-boxes {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .letter-box {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #7c43bd;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            background-color: #f3e5f5;
+        }
+        
+        .input-container {
+            margin: 20px 0;
+        }
+        
+        #word-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #7c43bd;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .input-hint {
+            color: #6a1b9a;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        #check-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        #check-btn:hover {
+            background-color: #388e3c;
+            transform: scale(1.05);
+        }
+        
+        #skip-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        #skip-btn:hover {
+            background-color: #f57c00;
+            transform: scale(1.05);
+        }
+        
+        #next-btn, #prev-btn {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        #next-btn:hover, #prev-btn:hover {
+            background-color: #1976d2;
+            transform: scale(1.05);
+        }
+        
+        #back-btn {
+            background-color: #9e9e9e;
+            color: white;
+        }
+        
+        #back-btn:hover {
+            background-color: #757575;
+            transform: scale(1.05);
+        }
+        
+        .message {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            display: none;
+        }
+        
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+        
+        .progress {
+            margin: 20px 0;
+            font-size: 1.1rem;
+            color: #6a1b9a;
+            font-weight: bold;
+        }
+        
+        /* تأثيرات للنجاح */
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .celebrate {
+            animation: celebrate 0.5s ease-in-out;
+        }
+        
+        .star-rating {
+            margin: 15px 0;
+            font-size: 2rem;
+            color: #ffc107;
+            display: none;
+        }
+        
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .category-btn {
+                padding: 12px;
+                font-size: 1rem;
+                min-height: 100px;
+            }
+            
+            .image-container {
+                width: 200px;
+                height: 200px;
+                font-size: 80px;
+            }
+            
+            .letter-box {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .image-container {
+                width: 180px;
+                height: 180px;
+                font-size: 70px;
+            }
+            
+            .letter-box {
+                width: 35px;
+                height: 35px;
+                font-size: 1.3rem;
+            }
+            
+            #word-input {
+                font-size: 1rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
 <body>
-<h1>لعبة كتابة الكلمات</h1>
-<p>هنا تضع لعبتك...</p>
-<a href='../index.html'>رجوع للوحة</a>
+    <div class="container">
+        <h1>لعبة كتابة الكلمات</h1>
+        <p class="subtitle">اختر قسمًا وابدأ التعلم بطريقة ممتعة!</p>
+        
+        <div class="categories-grid" id="categories-container">
+            <!-- سيتم ملء الأقسام ديناميكيًا باستخدام JavaScript -->
+        </div>
+        
+        <div class="game-card" id="game-card">
+            <div class="image-container" id="image-container">
+                <!-- سيتم عرض الصورة هنا -->
+            </div>
+            
+            <div class="progress" id="progress">
+                <!-- سيتم عرض التقدم هنا -->
+            </div>
+            
+            <div class="word-boxes" id="word-boxes">
+                <!-- سيتم إنشاء مربعات الحروف هنا -->
+            </div>
+            
+            <div class="input-container">
+                <input type="text" id="word-input" placeholder="اكتب الكلمة هنا">
+                <div class="input-hint">(يمكن كتابة الكلمة مع أو بدون همزات)</div>
+            </div>
+            
+            <div class="buttons">
+                <button id="check-btn">تحقق</button>
+                <button id="skip-btn">تخطى</button>
+                <button id="prev-btn">السابق</button>
+                <button id="next-btn">التالي</button>
+                <button id="back-btn">العودة</button>
+            </div>
+            
+            <div class="star-rating" id="star-rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+            </div>
+            
+            <div class="message success" id="success-message">
+                أحسنت! إجابة صحيحة.
+            </div>
+            
+            <div class="message error" id="error-message">
+                <!-- سيتم عرض الرسالة الخطأ هنا -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // بيانات الأقسام والكلمات (أكثر من 90 كلمة)
+        const categoriesData = {
+            "ألوان": [
+                { word: "أحمر", image: "🟥", variations: ["احمر", "أحمر", "احمر"] },
+                { word: "أزرق", image: "🟦", variations: ["ازرق", "أزرق", "ازرق"] },
+                { word: "أخضر", image: "🟩", variations: ["اخضر", "أخضر", "اخضر"] },
+                { word: "أصفر", image: "🟨", variations: ["اصفر", "أصفر", "اصفر"] },
+                { word: "برتقالي", image: "🟧", variations: ["برتقالي"] },
+                { word: "بنفسجي", image: "🟪", variations: ["بنفسجي"] },
+                { word: "وردي", image: "🌸", variations: ["وردي"] },
+                { word: "بني", image: "🟫", variations: ["بني"] },
+                { word: "أسود", image: "⬛", variations: ["اسود", "أسود", "اسود"] },
+                { word: "أبيض", image: "⬜", variations: ["ابيض", "أبيض", "ابيض"] }
+            ],
+            "أطعمة": [
+                { word: "تفاح", image: "🍎", variations: ["تفاح"] },
+                { word: "موز", image: "🍌", variations: ["موز"] },
+                { word: "عنب", image: "🍇", variations: ["عنب"] },
+                { word: "جزر", image: "🥕", variations: ["جزر"] },
+                { word: "خبز", image: "🍞", variations: ["خبز"] },
+                { word: "جبن", image: "🧀", variations: ["جبن"] },
+                { word: "لبن", image: "🥛", variations: ["لبن"] },
+                { word: "بيض", image: "🍳", variations: ["بيض"] },
+                { word: "أرز", image: "🍚", variations: ["ارز", "أرز", "ارز"] },
+                { word: "عسل", image: "🍯", variations: ["عسل"] }
+            ],
+            "حيوانات": [
+                { word: "أسد", image: "🦁", variations: ["اسد", "أسد", "اسد"] },
+                { word: "فيل", image: "🐘", variations: ["فيل"] },
+                { word: "زرافة", image: "🦒", variations: ["زرافة"] },
+                { word: "قرد", image: "🐒", variations: ["قرد"] },
+                { word: "دب", image: "🐻", variations: ["دب"] },
+                { word: "أرنب", image: "🐰", variations: ["ارنب", "أرنب", "ارنب"] },
+                { word: "ثعلب", image: "🦊", variations: ["ثعلب"] },
+                { word: "ذئب", image: "🐺", variations: ["ذئب"] },
+                { word: "حصان", image: "🐴", variations: ["حصان"] },
+                { word: "قطة", image: "🐱", variations: ["قطة"] }
+            ],
+            "فواكه": [
+                { word: "فراولة", image: "🍓", variations: ["فراولة"] },
+                { word: "أناناس", image: "🍍", variations: ["اناناس", "أناناس", "اناناس"] },
+                { word: "بطيخ", image: "🍉", variations: ["بطيخ"] },
+                { word: "شمام", image: "🍈", variations: ["شمام"] },
+                { word: "برتقال", image: "🍊", variations: ["برتقال"] },
+                { word: "ليمون", image: "🍋", variations: ["ليمون"] },
+                { word: "خوخ", image: "🍑", variations: ["خوخ"] },
+                { word: "كرز", image: "🍒", variations: ["كرز"] },
+                { word: "كمثرى", image: "🍐", variations: ["كمثرى"] },
+                { word: "مانجو", image: "🥭", variations: ["مانجو"] }
+            ],
+            "خضروات": [
+                { word: "طماطم", image: "🍅", variations: ["طماطم"] },
+                { word: "خيار", image: "🥒", variations: ["خيار"] },
+                { word: "فلفل", image: "🫑", variations: ["فلفل"] },
+                { word: "بصل", image: "🧅", variations: ["بصل"] },
+                { word: "ثوم", image: "🧄", variations: ["ثوم"] },
+                { word: "بطاطس", image: "🥔", variations: ["بطاطس"] },
+                { word: "بازلاء", image: "🫛", variations: ["بازلاء"] },
+                { word: "ذرة", image: "🌽", variations: ["ذرة"] },
+                { word: "زيتون", image: "🫒", variations: ["زيتون"] },
+                { word: "بروكلي", image: "🥦", variations: ["بروكلي"] }
+            ],
+            "مدرسة": [
+                { word: "قلم", image: "✏️", variations: ["قلم"] },
+                { word: "كتاب", image: "📖", variations: ["كتاب"] },
+                { word: "ممحاة", image: "🧼", variations: ["ممحاة"] },
+                { word: "مدرسة", image: "🏫", variations: ["مدرسة"] },
+                { word: "معلم", image: "👨‍🏫", variations: ["معلم"] },
+                { word: "طالب", image: "👨‍🎓", variations: ["طالب"] },
+                { word: "حقيبة", image: "🎒", variations: ["حقيبة"] },
+                { word: "سبورة", image: "📋", variations: ["سبورة"] },
+                { word: "مقص", image: "✂️", variations: ["مقص"] },
+                { word: "صمغ", image: "🧴", variations: ["صمغ"] }
+            ],
+            "عائلة": [
+                { word: "أب", image: "👨", variations: ["اب", "أب", "اب"] },
+                { word: "أم", image: "👩", variations: ["ام", "أم", "ام"] },
+                { word: "أخ", image: "👦", variations: ["اخ", "أخ", "اخ"] },
+                { word: "أخت", image: "👧", variations: ["اخت", "أخت", "اخت"] },
+                { word: "جد", image: "👴", variations: ["جد"] },
+                { word: "جدة", image: "👵", variations: ["جدة"] },
+                { word: "عمة", image: "👩", variations: ["عمة"] },
+                { word: "عم", image: "👨", variations: ["عم"] },
+                { word: "خالة", image: "👩", variations: ["خالة"] },
+                { word: "خال", image: "👨", variations: ["خال"] }
+            ],
+            "ملابس": [
+                { word: "قميص", image: "👕", variations: ["قميص"] },
+                { word: "بنطال", image: "👖", variations: ["بنطال"] },
+                { word: "فستان", image: "👗", variations: ["فستان"] },
+                { word: "غطاء", image: "🧢", variations: ["غطاء"] },
+                { word: "حذاء", image: "👟", variations: ["حذاء"] },
+                { word: "جوارب", image: "🧦", variations: ["جوارب"] },
+                { word: "معطف", image: "🧥", variations: ["معطف"] },
+                { word: "ساعة", image: "⌚", variations: ["ساعة"] },
+                { word: "نظارة", image: "👓", variations: ["نظارة"] },
+                { word: "قفازات", image: "🧤", variations: ["قفازات"] }
+            ],
+            "أجزاء الجسم": [
+                { word: "رأس", image: "🧠", variations: ["رأس", "راس"] },
+                { word: "يد", image: "✋", variations: ["يد"] },
+                { word: "رجل", image: "🦵", variations: ["رجل"] },
+                { word: "عين", image: "👁️", variations: ["عين"] },
+                { word: "أذن", image: "👂", variations: ["اذن", "أذن", "اذن"] },
+                { word: "أنف", image: "👃", variations: ["انف", "أنف", "انف"] },
+                { word: "فم", image: "👄", variations: ["فم"] },
+                { word: "قلب", image: "❤️", variations: ["قلب"] },
+                { word: "أصبع", image: "👆", variations: ["اصبع", "أصبع", "اصبع"] },
+                { word: "وجه", image: "😀", variations: ["وجه"] }
+            ]
+        };
+
+        // عناصر DOM
+        const categoriesContainer = document.getElementById('categories-container');
+        const gameCard = document.getElementById('game-card');
+        const imageContainer = document.getElementById('image-container');
+        const wordBoxes = document.getElementById('word-boxes');
+        const wordInput = document.getElementById('word-input');
+        const checkBtn = document.getElementById('check-btn');
+        const skipBtn = document.getElementById('skip-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const backBtn = document.getElementById('back-btn');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+        const progress = document.getElementById('progress');
+        const starRating = document.getElementById('star-rating');
+
+        // متغيرات اللعبة
+        let currentCategory = '';
+        let currentWords = [];
+        let currentIndex = 0;
+        let score = 0;
+        let totalAttempts = 0;
+
+        // تهيئة اللعبة
+        function initGame() {
+            // إنشاء أزرار الأقسام
+            for (const category in categoriesData) {
+                const categoryBtn = document.createElement('button');
+                categoryBtn.className = 'category-btn';
+                categoryBtn.innerHTML = `
+                    <div class="category-icon">${getCategoryIcon(category)}</div>
+                    <div>${category}</div>
+                `;
+                categoryBtn.addEventListener('click', () => startCategory(category));
+                categoriesContainer.appendChild(categoryBtn);
+            }
+        }
+
+        // الحصول على أيقونة القسم
+        function getCategoryIcon(category) {
+            const icons = {
+                'ألوان': '🎨',
+                'أطعمة': '🍕',
+                'حيوانات': '🐾',
+                'فواكه': '🍎',
+                'خضروات': '🥦',
+                'مدرسة': '🏫',
+                'عائلة': '👨‍👩‍👧‍👦',
+                'ملابس': '👕',
+                'أجزاء الجسم': '👁️'
+            };
+            return icons[category] || '📁';
+        }
+
+        // بدء قسم معين
+        function startCategory(category) {
+            currentCategory = category;
+            currentWords = categoriesData[category];
+            currentIndex = 0;
+            score = 0;
+            totalAttempts = 0;
+            
+            // إخفاء قائمة الأقسام وإظهار واجهة اللعبة
+            categoriesContainer.style.display = 'none';
+            gameCard.style.display = 'block';
+            
+            // تحميل الكلمة الأولى
+            loadWord();
+        }
+
+        // تحميل الكلمة الحالية
+        function loadWord() {
+            const currentWord = currentWords[currentIndex];
+            
+            // عرض الصورة
+            imageContainer.textContent = currentWord.image;
+            
+            // إنشاء مربعات الحروف
+            wordBoxes.innerHTML = '';
+            for (let i = 0; i < currentWord.word.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'letter-box';
+                box.textContent = '_';
+                wordBoxes.appendChild(box);
+            }
+            
+            // مسح حقل الإدخال وإخفاء الرسائل
+            wordInput.value = '';
+            wordInput.focus();
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            starRating.style.display = 'none';
+            
+            // تحديث شريط التقدم
+            progress.textContent = `${currentIndex + 1} / ${currentWords.length}`;
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userAnswer = wordInput.value.trim();
+            const correctWord = currentWords[currentIndex].word;
+            const variations = currentWords[currentIndex].variations;
+            
+            totalAttempts++;
+            
+            // التحقق من الإجابة مع مراعاة الهمزات والأشكال المختلفة
+            if (variations.includes(userAnswer) || userAnswer === correctWord) {
+                // الإجابة صحيحة
+                score++;
+                showSuccess();
+            } else {
+                // الإجابة خاطئة
+                showError(correctWord);
+            }
+        }
+
+        // عرض رسالة النجاح
+        function showSuccess() {
+            // ملء مربعات الحروف
+            const boxes = wordBoxes.querySelectorAll('.letter-box');
+            const word = currentWords[currentIndex].word;
+            
+            for (let i = 0; i < boxes.length; i++) {
+                boxes[i].textContent = word[i];
+            }
+            
+            // عرض رسالة النجاح
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            // تأثير التكبير للصورة
+            imageContainer.classList.add('celebrate');
+            setTimeout(() => {
+                imageContainer.classList.remove('celebrate');
+            }, 500);
+            
+            // عرض تقييم النجوم
+            starRating.style.display = 'block';
+            
+            // تشغيل صوت التصفيق
+            playApplause();
+        }
+
+        // عرض رسالة الخطأ
+        function showError(correctWord) {
+            errorMessage.innerHTML = `الإجابة الصحيحة هي: <strong>${correctWord}</strong>`;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            starRating.style.display = 'none';
+        }
+
+        // تشغيل صوت التصفيق
+        function playApplause() {
+            // في التطبيق الحقيقي، نستخدم صوتًا حقيقيًا
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.1;
+                
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+                
+                setTimeout(() => {
+                    oscillator.stop();
+                }, 500);
+            } catch (e) {
+                console.log("صوت التصفيق يشغل الآن");
+            }
+        }
+
+        // الانتقال إلى الكلمة التالية
+        function nextWord() {
+            if (currentIndex < currentWords.length - 1) {
+                currentIndex++;
+                loadWord();
+            } else {
+                // نهاية القسم، عرض النتيجة
+                showFinalScore();
+            }
+        }
+
+        // الانتقال إلى الكلمة السابقة
+        function prevWord() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadWord();
+            }
+        }
+
+        // تخطي الكلمة الحالية
+        function skipWord() {
+            if (currentIndex < currentWords.length - 1) {
+                currentIndex++;
+                loadWord();
+            } else {
+                // نهاية القسم، عرض النتيجة
+                showFinalScore();
+            }
+        }
+
+        // عرض النتيجة النهائية
+        function showFinalScore() {
+            const accuracy = totalAttempts > 0 ? Math.round((score / totalAttempts) * 100) : 0;
+            imageContainer.innerHTML = `
+                <div style="font-size: 1.5rem; padding: 20px;">
+                    <h2>نتيجتك النهائية</h2>
+                    <p>الإجابات الصحيحة: ${score} من ${totalAttempts}</p>
+                    <p>الدقة: ${accuracy}%</p>
+                    <div style="font-size: 3rem; margin-top: 20px;">
+                        ${accuracy >= 80 ? '🥇' : accuracy >= 60 ? '🥈' : '🥉'}
+                    </div>
+                </div>
+            `;
+            
+            wordBoxes.innerHTML = '';
+            wordInput.style.display = 'none';
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            starRating.style.display = 'none';
+            checkBtn.style.display = 'none';
+            skipBtn.style.display = 'none';
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            
+            progress.textContent = `إنتهى القسم!`;
+        }
+
+        // العودة إلى قائمة الأقسام
+        function backToCategories() {
+            categoriesContainer.style.display = 'grid';
+            gameCard.style.display = 'none';
+            
+            // إعادة تعيين عناصر اللعبة
+            wordInput.style.display = 'block';
+            checkBtn.style.display = 'block';
+            skipBtn.style.display = 'block';
+            prevBtn.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        // إضافة مستمعي الأحداث
+        checkBtn.addEventListener('click', checkAnswer);
+        nextBtn.addEventListener('click', nextWord);
+        prevBtn.addEventListener('click', prevWord);
+        skipBtn.addEventListener('click', skipWord);
+        backBtn.addEventListener('click', backToCategories);
+
+        // السماح بالتحقق بالضغط على Enter
+        wordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // بدء اللعبة
+        initGame();
+    </script>
 </body>
 </html>
