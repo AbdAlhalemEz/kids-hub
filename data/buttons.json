@@ -1,7 +1,6 @@
 ﻿[
   { "title": "لعبة كتابة الكلمات", "link": "pages/game1.html", "color": "#ffb347" },
-  { "title": "جزء تبارك", "link": "pages/quran-tabarak.html", "color": "#6a11cb" },
-  { "title": "جزء عماء", "link": "https://abdalhalemez.github.io/juz-amma-quiz/", "color": "#f7971e" },
+  { "title": "جزء عم", "link": "https://abdalhalemez.github.io/juz-amma-quiz/", "color": "#f7971e" },
   { "title": "طريق النور(المجادلة)", "link": "https://abdalhalemez.github.io/Mojadila/", "color": "#4CAF50" },
   { "title": "كتابة سور عم", "link": "https://abdalhalemez.github.io/write-test/", "color": "#00B0FF" },
   { "title": "اختبار عم وتبارك", "link": "https://abdalhalemez.github.io/quizz-amma-tabarak/", "color": "#FF6F61" },
