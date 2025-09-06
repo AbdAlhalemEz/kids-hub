@@ -15,6 +15,16 @@
   <h1>مرحبا! اختر نشاطك:</h1>
   <button id="install-btn" style="display:none; position:fixed; bottom:18px; left:18px; padding:10px 14px; border-radius:10px; background:#ffb347; border:none; color:#fff; font-weight:700; box-shadow:0 6px 16px rgba(0,0,0,0.15);">تثبيت التطبيق</button>
   <div id="buttons-container"></div>
+  <!-- Fallback instructions shown when browser doesn't provide the install prompt -->
+  <div id="install-instructions" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:18px; border-radius:12px; max-width:420px; margin:auto; text-align:right; direction:rtl; color:#222;">
+      <h3 style="margin-top:0">كيفية تثبيت التطبيق</h3>
+      <p style="margin:8px 0">1) تأكد من تشغيل الموقع عبر <strong>http://localhost</strong> أو عبر HTTPS.</p>
+      <p style="margin:8px 0">2) افتح قائمة المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "Install app".</p>
+      <p style="margin:8px 0">3) إذا ظهر شريط التثبيت تلقائياً، اضغط "تثبيت".</p>
+      <div style="text-align:center; margin-top:12px;"><button id="close-install-instructions" style="padding:8px 12px; border-radius:8px; background:#ffb347; color:#fff; border:none; font-weight:700;">حسناً</button></div>
+    </div>
+  </div>
 
   <script src="js/main.js"></script>
   <script>
@@ -36,12 +46,23 @@
 
     if (installBtn) {
       installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
-        console.log('User choice', choice);
-        deferredPrompt = null;
-        installBtn.style.display = 'none';
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const choice = await deferredPrompt.userChoice;
+          console.log('User choice', choice);
+          deferredPrompt = null;
+          installBtn.style.display = 'none';
+        } else {
+          // show helpful instructions if the browser didn't fire beforeinstallprompt
+          const overlay = document.getElementById('install-instructions');
+          if (overlay) overlay.style.display = 'flex';
+        }
+      });
+
+      const closeBtn = document.getElementById('close-install-instructions');
+      if (closeBtn) closeBtn.addEventListener('click', () => {
+        const overlay = document.getElementById('install-instructions');
+        if (overlay) overlay.style.display = 'none';
       });
     }
   </script>
