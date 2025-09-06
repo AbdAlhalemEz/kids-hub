@@ -1,0 +1,5 @@
+﻿[
+  { "title": "لعبة كتابة الكلمات", "link": "pages/game1.html", "color": "#ffb347" },
+  { "title": "جزء تبارك", "link": "pages/quran-tabarak.html", "color": "#6a11cb" },
+  { "title": "جزء عماء", "link": "pages/quran-amma.html", "color": "#f7971e" }
+]
