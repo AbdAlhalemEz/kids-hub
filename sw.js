@@ -1,11 +1,11 @@
 // Minimal service worker to cache the app shell for offline installability
 const CACHE_NAME = 'kids-hub-v1';
 const URLS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/js/main.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './css/style.css',
+  './js/main.js',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
