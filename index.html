@@ -6,11 +6,44 @@
   <title>لوحة الأطفال</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffb347">
+  <link rel="icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
   <h1>مرحبا! اختر نشاطك:</h1>
+  <button id="install-btn" style="display:none; position:fixed; bottom:18px; left:18px; padding:10px 14px; border-radius:10px; background:#ffb347; border:none; color:#fff; font-weight:700; box-shadow:0 6px 16px rgba(0,0,0,0.15);">تثبيت التطبيق</button>
   <div id="buttons-container"></div>
 
   <script src="js/main.js"></script>
+  <script>
+    // Register service worker for PWA installability
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed:', err));
+    }
+
+    // Optional: prompt install flow helper (keeps saved event)
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      // show install button
+      if (installBtn) installBtn.style.display = 'block';
+      console.log('PWA install prompt saved.');
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        console.log('User choice', choice);
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+      });
+    }
+  </script>
 </body>
 </html>
