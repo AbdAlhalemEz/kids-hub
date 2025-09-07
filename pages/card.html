@@ -659,17 +659,19 @@
 
             // حاول جلب السورة كاملة من API (مع دعم التعطل المحلي)
             fetchSurahWords(surah.number).then(words => {
+                console.log('API returned words:', words ? words.length : 0, 'words');
                 if (words && words.length) {
-                    currentWords = words;
+                    currentWords = words.filter(word => !isBasmalaWord(word.text));
+                    console.log('Using API data, filtered to:', currentWords.length, 'words');
                 } else if (surahWords[surah.number]) {
-                    currentWords = surahWords[surah.number];
+                    currentWords = surahWords[surah.number].filter(word => !isBasmalaWord(word.text));
+                    console.log('Using local data, filtered to:', currentWords.length, 'words');
                 } else {
                     currentWords = [
-                        {text: "بِسْمِ", clean: "بسم", ayah: 1},
-                        {text: "اللَّهِ", clean: "الله", ayah: 1},
-                        {text: "الرَّحْمَٰنِ", clean: "الرحمن", ayah: 1},
-                        {text: "الرَّحِيمِ", clean: "الرحيم", ayah: 1}
+                        {text: "جاري", clean: "جاري", ayah: 1},
+                        {text: "التحميل", clean: "التحميل", ayah: 1}
                     ];
+                    console.log('Using fallback data');
                 }
 
                 // عرض البطاقة الأولى
@@ -679,14 +681,14 @@
             }).catch(err => {
                 console.warn('Fetch surah failed, using local data', err);
                 if (surahWords[surah.number]) {
-                    currentWords = surahWords[surah.number];
+                    currentWords = surahWords[surah.number].filter(word => !isBasmalaWord(word.text));
+                    console.log('Using local data after API failure, filtered to:', currentWords.length, 'words');
                 } else {
                     currentWords = [
-                        {text: "بِسْمِ", clean: "بسم", ayah: 1},
-                        {text: "اللَّهِ", clean: "الله", ayah: 1},
-                        {text: "الرَّحْمَٰنِ", clean: "الرحمن", ayah: 1},
-                        {text: "الرَّحِيمِ", clean: "الرحيم", ayah: 1}
+                        {text: "جاري", clean: "جاري", ayah: 1},
+                        {text: "التحميل", clean: "التحميل", ayah: 1}
                     ];
+                    console.log('Using fallback data after API failure');
                 }
 
                 currentWordIndex = 0;
@@ -704,16 +706,47 @@
                 const data = await res.json();
                 if (!data || !data.data || !data.data.ayahs) throw new Error('Invalid API response');
 
+                console.log('API Response for surah', surahNumber, ':', data.data.ayahs.slice(0, 3)); // Debug first 3 ayahs
+
                 const words = [];
                 for (const ay of data.data.ayahs) {
                     const ayahText = ay.text.trim();
+                    console.log('Processing ayah', ay.numberInSurah, ':', ayahText); // Debug each ayah
+                    
+                    // Skip basmala (بسم الله الرحمن الرحيم) - it's not part of the surah content
+                    const cleanAyah = cleanArabic(ayahText);
+                    console.log('Cleaned ayah:', cleanAyah); // Debug cleaned version
+                    
+                    // Skip if it's the first ayah and contains basmala content
+                    if (ay.numberInSurah === 1 && (cleanAyah.includes('بسم') || cleanAyah.includes('الله'))) {
+                        console.log('Skipping first ayah (contains basmala):', ayahText);
+                        continue;
+                    }
+                    
+                    // Skip if it contains all basmala components
+                    const isBasmala = cleanAyah.includes('بسم') && 
+                                     cleanAyah.includes('الله') && 
+                                     cleanAyah.includes('الرحمن') && 
+                                     cleanAyah.includes('الرحيم');
+                    
+                    if (isBasmala) {
+                        console.log('Skipping basmala ayah:', ayahText, 'ayah number:', ay.numberInSurah);
+                        continue;
+                    }
+                    
                     // split by whitespace to words (keeps tashkeel)
                     const tokens = ayahText.split(/\s+/g).filter(t => t.trim().length > 0);
                     for (const token of tokens) {
-                        words.push({ text: token, clean: cleanArabic(token), ayah: ay.numberInSurah });
+                        // Skip any basmala words that might slip through
+                        if (!isBasmalaWord(token)) {
+                            words.push({ text: token, clean: cleanArabic(token), ayah: ay.numberInSurah });
+                        } else {
+                            console.log('Skipping basmala word:', token);
+                        }
                     }
                 }
 
+                console.log('Final words array:', words.slice(0, 5)); // Debug first 5 words
                 return words;
             } catch (e) {
                 console.error('fetchSurahWords error', e);
@@ -731,6 +764,13 @@
                 .replace(/[\W_]+/g, '') || word;
         }
 
+        // فحص إذا كانت الكلمة جزء من البسملة
+        function isBasmalaWord(word) {
+            const cleanWord = cleanArabic(word);
+            const basmalaWords = ['بسم', 'الله', 'الرحمن', 'الرحيم'];
+            return basmalaWords.includes(cleanWord);
+        }
+
         // العودة إلى قائمة السور
         function backToSurahs() {
             wordView.style.display = 'none';
@@ -742,6 +782,7 @@
             if (!currentWords.length) return;
 
             const word = currentWords[currentWordIndex];
+            console.log('Rendering card for word:', word.text, 'clean:', word.clean, 'ayah:', word.ayah);
             cardContainer.innerHTML = `
                 <div class="card" id="word-card">
                     <div class="card-number">${currentWordIndex + 1}/${currentWords.length}</div>
@@ -769,13 +810,19 @@
         // إعداد أحداث السحب
         function setupSwipeEvents(card) {
             let startX = 0;
+            let startY = 0;
             let currentX = 0;
             let isDragging = false;
+            let hasMoved = false;
+            let startTime = 0;
             
             // بدء السحب
             const startDrag = (e) => {
                 isDragging = true;
+                hasMoved = false;
+                startTime = Date.now();
                 startX = e.clientX || e.touches[0].clientX;
+                startY = e.clientY || e.touches[0].clientY;
                 card.style.transition = 'none';
                 e.preventDefault();
             };
@@ -790,6 +837,12 @@
                 
                 currentX = e.clientX || e.touches[0].clientX;
                 const deltaX = currentX - startX;
+                const deltaY = (e.clientY || e.touches[0].clientY) - startY;
+                
+                // Check if user has moved significantly (more than 10px)
+                if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                    hasMoved = true;
+                }
                 
                 if (Math.abs(deltaX) > 50) {
                     card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.05}deg)`;
@@ -797,7 +850,7 @@
             };
             
             // نهاية السحب
-            const endDrag = () => {
+            const endDrag = (e) => {
                 if (!isDragging) return;
                 isDragging = false;
                 
@@ -805,7 +858,15 @@
                 card.style.transform = 'translateX(0) rotate(0)';
                 
                 const deltaX = currentX - startX;
+                const deltaTime = Date.now() - startTime;
                 
+                // If it was a quick tap (less than 300ms) and didn't move much, flip the card
+                if (!hasMoved && deltaTime < 300) {
+                    flipCard();
+                    return;
+                }
+                
+                // Otherwise, handle swipe navigation
                 if (deltaX > 100) {
                     // سحب لليمين - التالي
                     nextWord();
