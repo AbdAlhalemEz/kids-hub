@@ -1,5 +1,6 @@
 ﻿[
-  { "title": "لعبة كتابة الكلمات", "link": "pages/game1.html", "color": "#ffb347" },
+  { "title": "كروت كلمات جزء عم", "link": "pages/card.html", "color": "#ffb347" },
+  { "title": "لعبة كتابة الكلمات", "link": "pages/game1.html", "color": "#aab899" },
   { "title": "جزء عم", "link": "https://abdalhalemez.github.io/juz-amma-quiz/", "color": "#f7971e" },
   { "title": "طريق النور(المجادلة)", "link": "https://abdalhalemez.github.io/Mojadila/", "color": "#4CAF50" },
   { "title": "كتابة سور عم", "link": "https://abdalhalemez.github.io/write-test/", "color": "#00B0FF" },

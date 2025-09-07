@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بطاقات سور جزء عم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* نمط عرض السور */
+        .surahs-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        .surah-card {
+            width: 150px;
+            height: 180px;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .surah-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .surah-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .surah-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .surah-details {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* نمط عرض الكلمات */
+        .word-view {
+            width: 100%;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: none;
+        }
+        
+        .word-header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .card-container {
+            position: relative;
+            height: 300px;
+            perspective: 1000px;
+            margin: 20px;
+            overflow: hidden;
+        }
+        
+        .card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f5d020 0%, #f53803 100%);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease;
+            cursor: grab;
+            text-align: center;
+            user-select: none;
+        }
+        
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, #f5d020 0%, #f53803 100%);
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .card-back {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            transform: rotateY(180deg);
+            font-size: 1.8rem;
+        }
+        
+        .card-number {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .ayah-number {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .progress {
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+        }
+        
+        .instructions {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .instructions h2 {
+            color: #4b6cb7;
+            margin-bottom: 10px;
+        }
+        
+        .instructions p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .swipe-instruction {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+        
+        .swipe-instruction div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer {
+            color: white;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .surahs-container {
+                gap: 15px;
+            }
+            
+            .surah-card {
+                width: 130px;
+                height: 160px;
+            }
+            
+            .card-front {
+                font-size: 2rem;
+            }
+            
+            .card-back {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .surah-card {
+                width: 110px;
+                height: 140px;
+            }
+            
+            .surah-number {
+                font-size: 1.5rem;
+            }
+            
+            .surah-name {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .card-container {
+                height: 250px;
+            }
+        }
+        /* help button and modal */
+        .help-btn {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            color: #2c3e50;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+        }
+
+        .help-modal[aria-hidden="false"] {
+            display: flex;
+        }
+
+        .help-content {
+            background: #fff;
+            color: #222;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 520px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            text-align: center;
+            direction: rtl;
+        }
+
+        .help-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            border: none;
+            background: transparent;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>بطاقات سور الجزء الثلاثين (جزء عم)</h1>
+        <div class="subtitle">اختر سورة لبدء التعلم</div>
+    <button id="help-btn" class="help-btn" aria-label="عرض التعليمات">?</button>
+    </div>
+    
+    <div class="container">
+        <!-- عرض سور الجزء الثلاثين -->
+        <div class="surahs-container" id="surahs-container">
+            <!-- سيتم إضافة البطاقات هنا via JavaScript -->
+        </div>
+        
+        <!-- عرض الكلمات -->
+        <div class="word-view" id="word-view">
+            <div class="word-header">
+                <button class="back-btn" id="back-btn">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h2 id="current-surah-name">سورة الفاتحة</h2>
+            </div>
+            
+            <div class="card-container" id="card-container">
+                <div class="card">
+                    <div class="loading">جاري تحميل الكلمات...</div>
+                </div>
+            </div>
+            
+            <div class="progress" id="progress">الكلمة 0 من 0</div>
+            
+            <div class="navigation">
+                <button class="btn" id="prev-btn" disabled>
+                    <i class="fas fa-arrow-right"></i> السابق
+                </button>
+                <button class="btn" id="flip-btn">
+                    <i class="fas fa-sync-alt"></i> اقلب البطاقة
+                </button>
+                <button class="btn" id="next-btn">
+                    التالي <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="instructions" style="display: none;">
+        <h2>كيفية استخدام التطبيق</h2>
+        <p>1. اختر سورة من البطاقات العائمة أعلاه</p>
+        <p>2. استخدم أزرار التالي والسابق للتنقل بين الكلمات</p>
+        <p>3. انقر على زر "اقلب البطاقة" أو على البطاقة نفسها لقلبها</p>
+        <p>4. اسحب البطاقة لليمين للكلمة التالية أو لليسار للكلمة السابقة</p>
+        <p>5. اقرأ الكلمة على الوجه الأمامي (مع التشكيل) والوجه الخلفي (بدون تشكيل)</p>
+        
+        <div class="swipe-instruction">
+            <div>
+                <i class="fas fa-arrow-right fa-2x"></i>
+                <p>اسحب لليمين للتالي</p>
+            </div>
+            <div>
+                <i class="fas fa-arrow-left fa-2x"></i>
+                <p>اسحب لليسار للسابق</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help modal (hidden by default) -->
+    <div class="help-modal" id="help-modal" aria-hidden="true">
+        <div class="help-content">
+            <button id="help-close" class="help-close" aria-label="اغلاق">&times;</button>
+            <h2>كيفية استخدام التطبيق</h2>
+            <p>1. اختر سورة من البطاقات العائمة أعلاه</p>
+            <p>2. استخدم أزرار التالي والسابق للتنقل بين الكلمات</p>
+            <p>3. انقر على زر "اقلب البطاقة" أو على البطاقة نفسها لقلبها</p>
+            <p>4. اسحب البطاقة لليمين للكلمة التالية أو لليسار للكلمة السابقة</p>
+            <p>5. اقرأ الكلمة على الوجه الأمامي (مع التشكيل) والوجه الخلفي (بدون تشكيل)</p>
+
+            <div class="swipe-instruction">
+                <div>
+                    <i class="fas fa-arrow-right fa-2x"></i>
+                    <p>اسحب لليمين للتالي</p>
+                </div>
+                <div>
+                    <i class="fas fa-arrow-left fa-2x"></i>
+                    <p>اسحب لليسار للسابق</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>تم التصميم لمساعدة الأطفال على حفظ كلمات القرآن الكريم</p>
+    </div>
+
+    <script>
+        // بيانات سور الجزء الثلاثين (جزء عم)
+        const juzAmmaSurahs = [
+            { number: 78, name: "سورة النبأ", ayahs: 40, type: "مكية" },
+            { number: 79, name: "سورة النازعات", ayahs: 46, type: "مكية" },
+            { number: 80, name: "سورة عبس", ayahs: 42, type: "مكية" },
+            { number: 81, name: "سورة التكوير", ayahs: 29, type: "مكية" },
+            { number: 82, name: "سورة الانفطار", ayahs: 19, type: "مكية" },
+            { number: 83, name: "سورة المطففين", ayahs: 36, type: "مكية" },
+            { number: 84, name: "سورة الانشقاق", ayahs: 25, type: "مكية" },
+            { number: 85, name: "سورة البروج", ayahs: 22, type: "مكية" },
+            { number: 86, name: "سورة الطارق", ayahs: 17, type: "مكية" },
+            { number: 87, name: "سورة الأعلى", ayahs: 19, type: "مكية" },
+            { number: 88, name: "سورة الغاشية", ayahs: 26, type: "مكية" },
+            { number: 89, name: "سورة الفجر", ayahs: 30, type: "مكية" },
+            { number: 90, name: "سورة البلد", ayahs: 20, type: "مكية" },
+            { number: 91, name: "سورة الشمس", ayahs: 15, type: "مكية" },
+            { number: 92, name: "سورة الليل", ayahs: 21, type: "مكية" },
+            { number: 93, name: "سورة الضحى", ayahs: 11, type: "مكية" },
+            { number: 94, name: "سورة الشرح", ayahs: 8, type: "مكية" },
+            { number: 95, name: "سورة التين", ayahs: 8, type: "مكية" },
+            { number: 96, name: "سورة العلق", ayahs: 19, type: "مكية" },
+            { number: 97, name: "سورة القدر", ayahs: 5, type: "مكية" },
+            { number: 98, name: "سورة البينة", ayahs: 8, type: "مدنية" },
+            { number: 99, name: "سورة الزلزلة", ayahs: 8, type: "مدنية" },
+            { number: 100, name: "سورة العاديات", ayahs: 11, type: "مكية" },
+            { number: 101, name: "سورة القارعة", ayahs: 11, type: "مكية" },
+            { number: 102, name: "سورة التكاثر", ayahs: 8, type: "مكية" },
+            { number: 103, name: "سورة العصر", ayahs: 3, type: "مكية" },
+            { number: 104, name: "سورة الهمزة", ayahs: 9, type: "مكية" },
+            { number: 105, name: "سورة الفيل", ayahs: 5, type: "مكية" },
+            { number: 106, name: "سورة قريش", ayahs: 4, type: "مكية" },
+            { number: 107, name: "سورة الماعون", ayahs: 7, type: "مكية" },
+            { number: 108, name: "سورة الكوثر", ayahs: 3, type: "مكية" },
+            { number: 109, name: "سورة الكافرون", ayahs: 6, type: "مكية" },
+            { number: 110, name: "سورة النصر", ayahs: 3, type: "مدنية" },
+            { number: 111, name: "سورة المسد", ayahs: 5, type: "مكية" },
+            { number: 112, name: "سورة الإخلاص", ayahs: 4, type: "مكية" },
+            { number: 113, name: "سورة الفلق", ayahs: 5, type: "مكية" },
+            { number: 114, name: "سورة الناس", ayahs: 6, type: "مكية" }
+        ];
+
+        // بيانات كلمات السور (بيانات افتراضية لأغراض العرض)
+        const surahWords = {
+            78: [
+                {text: "عَمَّ", clean: "عم", ayah: 1}, 
+                {text: "يَتَسَاءَلُونَ", clean: "يتساءلون", ayah: 1},
+                {text: "عَنِ", clean: "عن", ayah: 2},
+                {text: "النَّبَإِ", clean: "النبإ", ayah: 2},
+                {text: "الْعَظِيمِ", clean: "العظيم", ayah: 2},
+                {text: "الَّذِي", clean: "الذي", ayah: 3},
+                {text: "هُمْ", clean: "هم", ayah: 3},
+                {text: "فِيهِ", clean: "فيه", ayah: 3},
+                {text: "مُخْتَلِفُونَ", clean: "مختلفون", ayah: 3}
+            ],
+            79: [
+                {text: "وَالنَّازِعَاتِ", clean: "والنازعات", ayah: 1}, 
+                {text: "غَرْقًا", clean: "غرقا", ayah: 1},
+                {text: "وَالنَّاشِطَاتِ", clean: "والناشطات", ayah: 2},
+                {text: "نَشْطًا", clean: "نشطا", ayah: 2},
+                {text: "وَالسَّابِحَاتِ", clean: "والسابحات", ayah: 3},
+                {text: "سَبْحًا", clean: "سبحا", ayah: 3},
+                {text: "فَالسَّابِقَاتِ", clean: "فالسابقات", ayah: 4},
+                {text: "سَبْقًا", clean: "سبقا", ayah: 4}
+            ],
+            80: [
+                {text: "عَبَسَ", clean: "عبس", ayah: 1}, 
+                {text: "وَتَوَلَّى", clean: "وتولى", ayah: 1},
+                {text: "أَن", clean: "أن", ayah: 2},
+                {text: "جَاءَهُ", clean: "جاءه", ayah: 2},
+                {text: "الْأَعْمَى", clean: "الأعمى", ayah: 2},
+                {text: "وَمَا", clean: "وما", ayah: 3},
+                {text: "يُدْرِيكَ", clean: "يدريك", ayah: 3},
+                {text: "لَعَلَّهُ", clean: "لعله", ayah: 3},
+                {text: "يَزَّكَّى", clean: "يزكى", ayah: 3}
+            ],
+            112: [
+                {text: "قُلْ", clean: "قل", ayah: 1}, 
+                {text: "هُوَ", clean: "هو", ayah: 1},
+                {text: "اللَّهُ", clean: "الله", ayah: 1},
+                {text: "أَحَدٌ", clean: "أحد", ayah: 1},
+                {text: "اللَّهُ", clean: "الله", ayah: 2},
+                {text: "الصَّمَدُ", clean: "الصمد", ayah: 2},
+                {text: "لَمْ", clean: "لم", ayah: 3},
+                {text: "يَلِدْ", clean: "يلد", ayah: 3},
+                {text: "وَلَمْ", clean: "ولم", ayah: 3},
+                {text: "يُولَدْ", clean: "يولد", ayah: 3},
+                {text: "وَلَمْ", clean: "ولم", ayah: 4},
+                {text: "يَكُن", clean: "يكن", ayah: 4},
+                {text: "لَّهُ", clean: "له", ayah: 4},
+                {text: "كُفُوًا", clean: "كفوا", ayah: 4},
+                {text: "أَحَدٌ", clean: "أحد", ayah: 4}
+            ],
+            113: [
+                {text: "قُلْ", clean: "قل", ayah: 1}, 
+                {text: "أَعُوذُ", clean: "أعوذ", ayah: 1},
+                {text: "بِرَبِّ", clean: "برب", ayah: 1},
+                {text: "الْفَلَقِ", clean: "الفلق", ayah: 1},
+                {text: "مِن", clean: "من", ayah: 2},
+                {text: "شَرِّ", clean: "شر", ayah: 2},
+                {text: "مَا", clean: "ما", ayah: 2},
+                {text: "خَلَقَ", clean: "خلق", ayah: 2}
+            ],
+            114: [
+                {text: "قُلْ", clean: "قل", ayah: 1}, 
+                {text: "أَعُوذُ", clean: "أعوذ", ayah: 1},
+                {text: "بِرَبِّ", clean: "برب", ayah: 1},
+                {text: "النَّاسِ", clean: "الناس", ayah: 1},
+                {text: "مَلِكِ", clean: "ملك", ayah: 2},
+                {text: "النَّاسِ", clean: "الناس", ayah: 2},
+                {text: "إِلَهِ", clean: "إله", ayah: 3},
+                {text: "النَّاسِ", clean: "الناس", ayah: 3}
+            ]
+        };
+
+        // عناصر DOM
+        const surahsContainer = document.getElementById('surahs-container');
+        const wordView = document.getElementById('word-view');
+        const currentSurahName = document.getElementById('current-surah-name');
+        const cardContainer = document.getElementById('card-container');
+        const progressElement = document.getElementById('progress');
+        const prevButton = document.getElementById('prev-btn');
+        const nextButton = document.getElementById('next-btn');
+        const flipButton = document.getElementById('flip-btn');
+        const backButton = document.getElementById('back-btn');
+
+        // حالة التطبيق
+        let currentSurah = null;
+        let currentWords = [];
+        let currentWordIndex = 0;
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        // تهيئة التطبيق
+        function initApp() {
+            // إنشاء بطاقات السور
+            juzAmmaSurahs.forEach(surah => {
+                const surahCard = document.createElement('div');
+                surahCard.className = 'surah-card';
+                surahCard.innerHTML = `
+                    <div class="surah-number">${surah.number}</div>
+                    <div class="surah-name">${surah.name}</div>
+                    <div class="surah-details">${surah.ayahs} آيات</div>
+                `;
+                
+                surahCard.addEventListener('click', () => loadSurah(surah));
+                surahsContainer.appendChild(surahCard);
+            });
+        }
+
+        // تحميل السورة المحددة
+        function loadSurah(surah) {
+            currentSurah = surah;
+            currentSurahName.textContent = surah.name;
+            
+            // إظهار واجهة الكلمات وإخفاء واجهة السور
+            wordView.style.display = 'block';
+            surahsContainer.style.display = 'none';
+            
+            // عرض مؤشر التحميل
+            cardContainer.innerHTML = `<div class="card"><div class="loading">جاري تحميل السورة...</div></div>`;
+
+            // حاول جلب السورة كاملة من API (مع دعم التعطل المحلي)
+            fetchSurahWords(surah.number).then(words => {
+                if (words && words.length) {
+                    currentWords = words;
+                } else if (surahWords[surah.number]) {
+                    currentWords = surahWords[surah.number];
+                } else {
+                    currentWords = [
+                        {text: "بِسْمِ", clean: "بسم", ayah: 1},
+                        {text: "اللَّهِ", clean: "الله", ayah: 1},
+                        {text: "الرَّحْمَٰنِ", clean: "الرحمن", ayah: 1},
+                        {text: "الرَّحِيمِ", clean: "الرحيم", ayah: 1}
+                    ];
+                }
+
+                // عرض البطاقة الأولى
+                currentWordIndex = 0;
+                renderCard();
+                updateNavigation();
+            }).catch(err => {
+                console.warn('Fetch surah failed, using local data', err);
+                if (surahWords[surah.number]) {
+                    currentWords = surahWords[surah.number];
+                } else {
+                    currentWords = [
+                        {text: "بِسْمِ", clean: "بسم", ayah: 1},
+                        {text: "اللَّهِ", clean: "الله", ayah: 1},
+                        {text: "الرَّحْمَٰنِ", clean: "الرحمن", ayah: 1},
+                        {text: "الرَّحِيمِ", clean: "الرحيم", ayah: 1}
+                    ];
+                }
+
+                currentWordIndex = 0;
+                renderCard();
+                updateNavigation();
+            });
+        }
+
+        // جلب نص السورة من API وتقسيمها إلى كلمات مع حفظ رقم الآية
+        async function fetchSurahWords(surahNumber) {
+            try {
+                const url = `https://api.alquran.cloud/v1/surah/${surahNumber}/ar`; // returns ayahs with text
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Network response was not ok');
+                const data = await res.json();
+                if (!data || !data.data || !data.data.ayahs) throw new Error('Invalid API response');
+
+                const words = [];
+                for (const ay of data.data.ayahs) {
+                    const ayahText = ay.text.trim();
+                    // split by whitespace to words (keeps tashkeel)
+                    const tokens = ayahText.split(/\s+/g).filter(t => t.trim().length > 0);
+                    for (const token of tokens) {
+                        words.push({ text: token, clean: cleanArabic(token), ayah: ay.numberInSurah });
+                    }
+                }
+
+                return words;
+            } catch (e) {
+                console.error('fetchSurahWords error', e);
+                throw e;
+            }
+        }
+
+        // تنظيف الكلمة من التشكيل والرموز للحصول على نسخة "نظيفة"
+        function cleanArabic(word) {
+            // إزالة التشكيل والحركات وعلامات الوقف
+            return word
+                .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+                .replace(/[\u06E9\u06EA\u06EB\u06EC\u06ED]/g, '')
+                .replace(/[\u0600-\u0605\u060C\u061B\u061F\u06D4\u066A-\u066D]/g, '')
+                .replace(/[\W_]+/g, '') || word;
+        }
+
+        // العودة إلى قائمة السور
+        function backToSurahs() {
+            wordView.style.display = 'none';
+            surahsContainer.style.display = 'flex';
+        }
+
+        // عرض البطاقة الحالية
+        function renderCard() {
+            if (!currentWords.length) return;
+
+            const word = currentWords[currentWordIndex];
+            cardContainer.innerHTML = `
+                <div class="card" id="word-card">
+                    <div class="card-number">${currentWordIndex + 1}/${currentWords.length}</div>
+                    <div class="ayah-number">آية: ${word.ayah}</div>
+                    <div class="card-front">${word.text}</div>
+                    <div class="card-back">
+                        <div class="back-surah" style="font-size:1.05rem; font-weight:bold; margin-bottom:8px;">${currentSurah ? currentSurah.name : ''}</div>
+                        <div class="clean-word" style="font-size:2.2rem; font-weight:bold;">${word.clean}</div>
+                        <div style="margin-top:8px; opacity:0.95; font-size:0.95rem;">آية: ${word.ayah} — كلمة ${currentWordIndex + 1} من ${currentWords.length}</div>
+                        <div style="margin-top:6px; opacity:0.8; font-size:0.85rem;">(بدون تشكيل)</div>
+                    </div>
+                </div>
+            `;
+            
+            progressElement.textContent = `الكلمة ${currentWordIndex + 1} من ${currentWords.length}`;
+            
+            // إضافة مستمع الأحداث للبطاقة
+            const card = document.getElementById('word-card');
+            card.addEventListener('click', flipCard);
+            
+            // إضافة مستمعي أحداث السحب
+            setupSwipeEvents(card);
+        }
+
+        // إعداد أحداث السحب
+        function setupSwipeEvents(card) {
+            let startX = 0;
+            let currentX = 0;
+            let isDragging = false;
+            
+            // بدء السحب
+            const startDrag = (e) => {
+                isDragging = true;
+                startX = e.clientX || e.touches[0].clientX;
+                card.style.transition = 'none';
+                e.preventDefault();
+            };
+            
+            // أثناء السحب
+            const drag = (e) => {
+                if (!isDragging) return;
+                
+                if (e.type === 'touchmove') {
+                    e.preventDefault();
+                }
+                
+                currentX = e.clientX || e.touches[0].clientX;
+                const deltaX = currentX - startX;
+                
+                if (Math.abs(deltaX) > 50) {
+                    card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.05}deg)`;
+                }
+            };
+            
+            // نهاية السحب
+            const endDrag = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                card.style.transition = 'transform 0.4s ease';
+                card.style.transform = 'translateX(0) rotate(0)';
+                
+                const deltaX = currentX - startX;
+                
+                if (deltaX > 100) {
+                    // سحب لليمين - التالي
+                    nextWord();
+                } else if (deltaX < -100) {
+                    // سحب لليسار - السابق
+                    prevWord();
+                }
+            };
+            
+            // إضافة مستمعي الأحداث
+            card.addEventListener('mousedown', startDrag);
+            card.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+            
+            // تنظيف الأحداث عند تغيير البطاقة
+            return () => {
+                card.removeEventListener('mousedown', startDrag);
+                card.removeEventListener('touchstart', startDrag);
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+            };
+        }
+
+        // قلب البطاقة
+        function flipCard() {
+            const card = document.getElementById('word-card');
+            card.classList.toggle('flipped');
+        }
+
+        // تحديث أزرار التنقل
+        function updateNavigation() {
+            prevButton.disabled = currentWordIndex === 0;
+            nextButton.disabled = currentWordIndex === currentWords.length - 1;
+        }
+
+        // الانتقال إلى الكلمة التالية
+        function nextWord() {
+            if (currentWords.length && currentWordIndex < currentWords.length - 1) {
+                currentWordIndex++;
+                renderCard();
+                updateNavigation();
+            }
+        }
+
+        // الانتقال إلى الكلمة السابقة
+        function prevWord() {
+            if (currentWords.length && currentWordIndex > 0) {
+                currentWordIndex--;
+                renderCard();
+                updateNavigation();
+            }
+        }
+
+        // إضافة مستمعي الأحداث
+        backButton.addEventListener('click', backToSurahs);
+        prevButton.addEventListener('click', prevWord);
+        nextButton.addEventListener('click', nextWord);
+        flipButton.addEventListener('click', flipCard);
+
+        // Help modal wiring
+        const helpBtn = document.getElementById('help-btn');
+        const helpModal = document.getElementById('help-modal');
+        const helpClose = document.getElementById('help-close');
+
+        function openHelp() {
+            helpModal.setAttribute('aria-hidden', 'false');
+            helpModal.style.display = 'flex';
+            // focus for accessibility
+            helpClose.focus();
+        }
+
+        function closeHelp() {
+            helpModal.setAttribute('aria-hidden', 'true');
+            helpModal.style.display = 'none';
+            helpBtn.focus();
+        }
+
+        helpBtn && helpBtn.addEventListener('click', openHelp);
+        helpClose && helpClose.addEventListener('click', closeHelp);
+        helpModal && helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) closeHelp();
+        });
+
+        // تهيئة التطبيق
+        initApp();
+    </script>
+</body>
+</html>
